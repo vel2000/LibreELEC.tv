@@ -1,6 +1,6 @@
 ################################################################################
 #      This file is part of LibreELEC - https://libreelec.tv
-#      Copyright (C) 2016-2017 Team LibreELEC
+#      Copyright (C) 2016-present Team LibreELEC
 #
 #  LibreELEC is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -33,8 +33,12 @@ PKG_AUTORECONF="no"
 
 if [ "$TARGET_KERNEL_ARCH" = "arm64" -a "$TARGET_ARCH" = "arm" ]; then
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET gcc-linaro-aarch64-linux-gnu:host"
-  export PATH=$ROOT/$TOOLCHAIN/lib/gcc-linaro-aarch64-linux-gnu/bin/:$PATH
+  export PATH=$TOOLCHAIN/lib/gcc-linaro-aarch64-linux-gnu/bin/:$PATH
   TARGET_PREFIX=aarch64-linux-gnu-
+fi
+
+if [ "$PROJECT" = "S905" ] || [ "$PROJECT" = "S912" ]; then
+  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET dvb_tv-aml"
 fi
 
 pre_make_target() {
@@ -66,7 +70,6 @@ make_target() {
     sed -i 's,common/,,g; s,"trace/,",g' $(find linux/drivers/media/video_dev/ -type f)
     sed -i 's,\$(CONFIG_V4L_AMLOGIC_VIDEO),m,g' "linux/drivers/media/video_dev/Makefile"
     echo "obj-y += video_dev/" >> "linux/drivers/media/Makefile"
-    echo "source drivers/media/video_dev/Kconfig " >> "linux/drivers/media/Kconfig"
 
     # Copy and enable videobuf-res module
     cp -a "$(kernel_path)/drivers/media/v4l2-core/videobuf-res.c" "linux/drivers/media/v4l2-core/"
@@ -75,10 +78,20 @@ make_target() {
 
   fi
 
+  # Amlogic DVB driver
+  if [ "$PROJECT" = "S905" ] || [ "$PROJECT" = "S912" ]; then
+    DVB_TV_AML_DIR="$(get_build_dir dvb_tv-aml)"
+    if [ -d "$DVB_TV_AML_DIR" ]; then
+      cp -a "$DVB_TV_AML_DIR" "linux/drivers/media/dvb_tv"
+      echo "obj-y += dvb_tv/" >> "linux/drivers/media/Makefile"
+    fi 
+    echo "obj-y += amlogic/dvb_tv/" >> "linux/drivers/media/Makefile"
+  fi
+
   make VER=$KERNEL_VER SRCDIR=$(kernel_path)
 }
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/modules/$KERNEL_VER/updates
-  find $ROOT/$PKG_BUILD/v4l/ -name \*.ko -exec cp {} $INSTALL/usr/lib/modules/$KERNEL_VER/updates \;
+  find $PKG_BUILD/v4l/ -name \*.ko -exec cp {} $INSTALL/usr/lib/modules/$KERNEL_VER/updates \;
 }
