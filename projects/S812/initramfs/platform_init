@@ -80,3 +80,6 @@ for part in /sys/block/*/queue/add_random; do
 done
 
 echo 1 > /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy
+
+# Stabilize xbox one bluetooth controller
+echo 1 > /sys/module/bluetooth/parameters/disable_ertm
