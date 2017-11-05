@@ -25,9 +25,9 @@ index 0000000..1fe1d61
 + #include <linux/module.h>
 + #include <linux/mutex.h>
 ++#include <linux/of_i2c.h>
++ #include <linux/of_graph.h>
 + #include <linux/platform_device.h>
 + #include <linux/pm_runtime.h>
-+ #include <linux/regulator/consumer.h>
 diff --git a/v4l/compat.h b/v4l/compat.h
 index aee654a..03e1882 100644
 --- a/v4l/compat.h

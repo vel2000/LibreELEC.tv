@@ -9,16 +9,7 @@ diff -Naur a/drivers/media/rc/Kconfig b/drivers/media/rc/Kconfig
  	---help---
  	   Say Y if you want to use the IR remote receiver available
  	   on Amlogic Meson SoCs.
-diff -Naur a/drivers/media/rc/meson-ir.c b/drivers/media/rc/meson-ir.c
---- a/drivers/media/rc/meson-ir.c	2017-01-23 18:15:27.000000000 +0100
-+++ b/drivers/media/rc/meson-ir.c	2017-04-26 11:41:08.501085408 +0200
-@@ -19,6 +19,7 @@
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
- #include <linux/spinlock.h>
-+#include <linux/pinctrl/consumer.h>
- 
- #include <media/rc-core.h>
+
  
 @@ -97,7 +98,7 @@
  
